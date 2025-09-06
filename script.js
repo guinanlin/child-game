@@ -74,6 +74,7 @@ const perfectElement = document.getElementById("perfect");
 const restartButton = document.getElementById("restart");
 const scoreElement = document.getElementById("score");
 const bgm = document.getElementById("bgm");
+const audioToggle = document.getElementById("audio-toggle");
 if (bgm) {
   bgm.volume = 0.5;
   const startBgmOnce = () => {
@@ -85,6 +86,36 @@ if (bgm) {
   window.addEventListener("mousedown", startBgmOnce);
   window.addEventListener("touchstart", startBgmOnce, { passive: true });
   window.addEventListener("keydown", startBgmOnce);
+}
+
+// Wire audio toggle
+if (audioToggle && bgm) {
+  const refreshAudioIcon = () => {
+    if (bgm.muted) {
+      audioToggle.classList.add("muted");
+      audioToggle.textContent = "🔇";
+      audioToggle.setAttribute("aria-label", "开启音乐");
+      audioToggle.title = "开启音乐";
+    } else {
+      audioToggle.classList.remove("muted");
+      audioToggle.textContent = "🔊";
+      audioToggle.setAttribute("aria-label", "关闭音乐");
+      audioToggle.title = "关闭音乐";
+    }
+  };
+  refreshAudioIcon();
+
+  const toggleMute = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    bgm.muted = !bgm.muted;
+    if (!bgm.muted) {
+      bgm.play().catch(() => {});
+    }
+    refreshAudioIcon();
+  };
+  audioToggle.addEventListener("click", toggleMute);
+  audioToggle.addEventListener("touchstart", toggleMute, { passive: false });
 }
 
 // Initialize layout
@@ -195,6 +226,44 @@ window.addEventListener("mouseup", function (event) {
     phase = "turning";
   }
 });
+
+// Touch support for tablets/phones
+window.addEventListener(
+  "touchstart",
+  function (event) {
+    if (phase == "waiting") {
+      lastTimestamp = undefined;
+      introductionElement.style.opacity = 0;
+      phase = "stretching";
+      window.requestAnimationFrame(animate);
+    }
+    // Prevent scrolling/zooming while interacting
+    event.preventDefault();
+  },
+  { passive: false }
+);
+
+window.addEventListener(
+  "touchend",
+  function (event) {
+    if (phase == "stretching") {
+      phase = "turning";
+    }
+    event.preventDefault();
+  },
+  { passive: false }
+);
+
+window.addEventListener(
+  "touchcancel",
+  function (event) {
+    if (phase == "stretching") {
+      phase = "turning";
+    }
+    event.preventDefault();
+  },
+  { passive: false }
+);
 
 window.addEventListener("resize", function (event) {
   canvas.width = window.innerWidth;
@@ -332,6 +401,8 @@ function draw() {
   ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
   drawBackground();
+  // Draw fixed overlays (screen space)
+  drawRuler();
 
   // Center main canvas area to the middle of the screen
   ctx.translate(
@@ -462,22 +533,104 @@ function drawSticks() {
   });
 }
 
+function drawRuler() {
+  if (!sticks.length) return;
+  // Only show while waiting or stretching
+  if (!(phase === "waiting" || phase === "stretching")) return;
+
+  const firstStick = sticks[0];
+  // Place ruler at the LEFT side of the first platform (pillar start), in SCREEN coordinates
+  const firstPlatform = platforms[0];
+  const canvasLeft = (window.innerWidth - canvasWidth) / 2;
+  const canvasTop = (window.innerHeight - canvasHeight) / 2;
+  const baseXWorld = firstPlatform ? firstPlatform.x : firstStick.x;
+  const axisX = canvasLeft + baseXWorld - 12;
+
+  // The fixed Y position for the 0 mark of the ruler (top of the first pillar)
+  const rulerZeroY = canvasTop + (canvasHeight - platformHeight);
+
+  // The maximum length the ruler should show, in pixels (corresponds to meters)
+  const maxRulerLengthPixels = 500; // From user request, at least 500m
+  const step = 50; // 50px per 50m
+  const tickLength = 6;
+
+  // The highest point (smallest Y value) the ruler line should reach
+  const rulerTopY = rulerZeroY - maxRulerLengthPixels;
+
+  ctx.save();
+  ctx.strokeStyle = "#ff3fa6"; // Ruler line color
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(axisX, rulerZeroY); // Start main ruler line from 0 mark
+  ctx.lineTo(axisX, Math.max(0, rulerTopY)); // Draw up to maxRulerLengthPixels or canvas top
+  ctx.stroke();
+
+  ctx.font = "bold 12px Arial";
+  ctx.textAlign = "right";
+  ctx.textBaseline = "middle";
+
+  // Draw ticks and labels
+  // Loop from 0 up to a point where labels would go off screen or past maxRulerLengthPixels
+  for (let i = 0; (rulerZeroY - i * step) >= Math.max(0, rulerTopY); i++) {
+    const y = rulerZeroY - i * step; // Y position for the current tick/label
+    const label = String(i * step); // Label value (0, 50, 100...)
+
+    // Tick mark
+    ctx.beginPath();
+    ctx.moveTo(axisX - tickLength, y);
+    ctx.lineTo(axisX, y);
+    ctx.stroke();
+
+    // Label background for readability
+    const paddingX = 3;
+    const textWidth = ctx.measureText(label).width;
+    const boxW = textWidth + paddingX * 2;
+    const boxH = 16; // Approximately text height
+    const boxX = axisX - tickLength - 8 - boxW;
+    const boxY = y - boxH / 2;
+
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.fillRect(boxX, boxY, boxW, boxH);
+
+    ctx.fillStyle = "#ff3fa6"; // Label text color
+    ctx.fillText(label, axisX - tickLength - 8, y);
+  }
+
+  // Draw a dynamic marker for the current stick length
+  // This marker should move as the stick grows
+  const currentStickLength = firstStick.length;
+  const currentStickMarkerY = rulerZeroY - currentStickLength;
+
+  // Only draw if the stick length is positive and within the visible range of the ruler
+  if (currentStickLength > 0 && currentStickMarkerY >= Math.max(0, rulerTopY) && currentStickMarkerY <= rulerZeroY) {
+    ctx.strokeStyle = "blue"; // Distinct color for the marker
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(axisX - tickLength - 3, currentStickMarkerY);
+    ctx.lineTo(axisX + 3, currentStickMarkerY);
+    ctx.stroke();
+
+    const label = String(Math.round(currentStickLength)); // Display rounded current length
+    const paddingX = 3;
+    const textWidth = ctx.measureText(label).width;
+    const boxW = textWidth + paddingX * 2;
+    const boxH = 16;
+    const boxX = axisX - tickLength - 8 - boxW;
+    const boxY = currentStickMarkerY - boxH / 2;
+
+    ctx.fillStyle = "rgba(173,216,230,0.85)"; // Light blue background for dynamic label
+    ctx.fillRect(boxX, boxY, boxW, boxH);
+
+    ctx.fillStyle = "blue"; // Dynamic label text color
+    ctx.fillText(label, axisX - tickLength - 8, currentStickMarkerY);
+  }
+
+  ctx.restore();
+}
+
 function drawGapLabel() {
-  const currentStick = sticks.last();
-  if (!currentStick) return;
+  if (platforms.length < 2) return;
 
-  // Identify the current platform (the one whose right edge equals the stick's base x)
-  const currentIndex = platforms.findIndex(
-    (p) => p.x + p.w === currentStick.x
-  );
-  if (currentIndex < 0 || currentIndex + 1 >= platforms.length) return;
-
-  const currentPlatform = platforms[currentIndex];
-  const nextPlatform = platforms[currentIndex + 1];
-  const gap = nextPlatform.x - (currentPlatform.x + currentPlatform.w);
-  if (gap <= 0) return;
-
-  const midX = currentPlatform.x + currentPlatform.w + gap / 2;
   // Vertical middle between the top and bottom of the pillars
   const topY = canvasHeight - platformHeight;
   const pillarHeight = platformHeight + (window.innerHeight - canvasHeight) / 2;
@@ -488,7 +641,17 @@ function drawGapLabel() {
   ctx.font = "12px Arial";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(gap + "米", midX, textY);
+
+  for (let i = 0; i < platforms.length - 1; i++) {
+    const currentPlatform = platforms[i];
+    const nextPlatform = platforms[i + 1];
+    const gap = nextPlatform.x - (currentPlatform.x + currentPlatform.w);
+    if (gap <= 0) continue;
+
+    const midX = currentPlatform.x + currentPlatform.w + gap / 2;
+    ctx.fillText(gap + "米", midX, textY);
+  }
+
   ctx.restore();
 }
 

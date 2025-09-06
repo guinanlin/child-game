@@ -9,6 +9,10 @@ body {
   cursor: pointer;
 }
 
+#game {
+  touch-action: none; /* prevent panning/zooming during touch interaction */
+}
+
 .container {
   display: flex;
   justify-content: center;
@@ -162,8 +166,8 @@ body {
 
 #audio-toggle {
   position: absolute;
-  top: 85px;
-  right: 30px;
+  top: 30px;
+  left: 30px;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -173,4 +177,13 @@ body {
   font-size: 20px;
   cursor: pointer;
   box-shadow: 0 8px 16px rgba(184, 59, 138, 0.25);
+  z-index: 5;
+}
+
+#audio-toggle.muted::after {
+  content: "✖";
+  position: absolute;
+  right: 6px;
+  top: 4px;
+  font-size: 16px;
 }
