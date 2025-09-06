@@ -187,3 +187,33 @@ body {
   top: 4px;
   font-size: 16px;
 }
+
+/* How to play panel under the title */
+#how-to-play {
+  position: absolute;
+  top: 90px; /* 位于右上角计分板下方 */
+  right: 30px;
+  width: 280px;
+  max-width: 86vw;
+  font-size: 0.9em;
+  line-height: 1.6;
+  color: #7a3ea1;
+  background: rgba(255, 240, 246, 0.9);
+  padding: 10px 12px;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(184, 59, 138, 0.12);
+  z-index: 3;
+}
+
+#how-to-play .howto-title {
+  font-weight: 800;
+  font-size: 1em;
+  color: #b83b8a;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+#how-to-play .howto-list {
+  margin: 0;
+  padding-left: 18px;
+}
