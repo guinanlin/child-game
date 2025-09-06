@@ -64,7 +64,7 @@ function Screen(props) {
         }),
       },
     ],
-  };
+  } as any;
   // console.log(props);
   return (
     <View
@@ -89,13 +89,12 @@ function Screen(props) {
             toValue: 0,
             duration: 400,
             useNativeDriver: process.env.EXPO_OS !== "web",
-            easing: Easing.in(Easing.qubic),
-            onComplete: ({ finished }) => {
-              if (finished) {
-                props.onPlay();
-              }
-            },
-          }).start();
+            easing: Easing.in(Easing.cubic),
+          }).start(({ finished }) => {
+            if (finished) {
+              props.onPlay();
+            }
+          });
         }}
       >
         <Text style={styles.coins}>{props.coins}</Text>

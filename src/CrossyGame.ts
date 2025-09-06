@@ -114,10 +114,42 @@ export class CrossyScene extends Scene {
 }
 
 export class CrossyCamera extends OrthographicCamera {
+  baseZoom: number;
+  userZoom: number;
+  minUserZoom: number;
+  maxUserZoom: number;
+  // Orbit state
+  orbitRadius: number;
+  orbitTheta: number;
+  orbitPhi: number;
+  minPhi: number;
+  maxPhi: number;
+  orbitTargetX: number;
+  orbitTargetY: number;
+  orbitTargetZ: number;
   constructor() {
     super(-1, 1, 1, -1, -30, 30);
     this.position.set(-1, 2.8, -2.9); // Change -1 to -.02
     this.lookAt(0, 0, 0);
+    this.baseZoom = 300;
+    this.userZoom = 1;
+    this.minUserZoom = 0.4;
+    this.maxUserZoom = 3;
+
+    // Initialize orbit state from current position
+    const offset = new THREE.Vector3().subVectors(
+      this.position,
+      new THREE.Vector3(0, 0, 0)
+    );
+    const s = new THREE.Spherical().setFromVector3(offset);
+    this.orbitRadius = s.radius;
+    this.orbitTheta = s.theta;
+    this.orbitPhi = s.phi;
+    this.minPhi = 0.15;
+    this.maxPhi = Math.PI - 0.15;
+    this.orbitTargetX = 0;
+    this.orbitTargetY = 0;
+    this.orbitTargetZ = 0;
   }
 
   updateScale = ({ width, height, scale }) => {
@@ -125,9 +157,92 @@ export class CrossyCamera extends OrthographicCamera {
     this.right = width * scale;
     this.top = height * scale;
     this.bottom = -(height * scale);
-    this.zoom = 300;
-    this.updateProjectionMatrix();
+    this.applyZoom();
   };
+
+  setUserZoom(nextZoom: number) {
+    const clamped = Math.max(this.minUserZoom, Math.min(this.maxUserZoom, nextZoom));
+    if (clamped !== this.userZoom) {
+      this.userZoom = clamped;
+      this.applyZoom();
+    }
+  }
+
+  adjustZoomByDelta(deltaY: number) {
+    // Use an exponential scale so small wheel deltas feel natural
+    const scaleFactor = Math.exp(-deltaY * 0.0015);
+    this.setUserZoom(this.userZoom * scaleFactor);
+  }
+
+  applyZoom() {
+    this.zoom = this.baseZoom * this.userZoom;
+    this.updateProjectionMatrix();
+  }
+
+  // Orbit around target by delta angles (radians)
+  orbitBy(deltaTheta: number, deltaPhi: number) {
+    this.orbitTheta += deltaTheta;
+    this.orbitPhi = Math.max(this.minPhi, Math.min(this.maxPhi, this.orbitPhi + deltaPhi));
+    this.applyOrbitPosition();
+  }
+
+  // Pan target by pixel delta relative to viewport
+  panByPixels(deltaX: number, deltaY: number, viewportWidth: number, viewportHeight: number) {
+    // Convert pixels to world units based on current zoom and frustum size
+    const worldWidth = (this.right - this.left) / this.zoom;
+    const worldHeight = (this.top - this.bottom) / this.zoom;
+    const moveX = (-deltaX / Math.max(1, viewportWidth)) * worldWidth;
+    const moveY = (deltaY / Math.max(1, viewportHeight)) * worldHeight;
+
+    const forward = new THREE.Vector3();
+    this.getWorldDirection(forward); // -Z
+    const up = this.up.clone().normalize();
+    const right = new THREE.Vector3().crossVectors(forward, up).normalize().negate();
+
+    const panOffset = new THREE.Vector3()
+      .add(right.multiplyScalar(moveX))
+      .add(up.multiplyScalar(moveY));
+
+    this.orbitTargetX += panOffset.x;
+    this.orbitTargetY += panOffset.y;
+    this.orbitTargetZ += panOffset.z;
+    this.applyOrbitPosition();
+  }
+
+  setOrbitTarget(x: number, y: number, z: number) {
+    this.orbitTargetX = x;
+    this.orbitTargetY = y;
+    this.orbitTargetZ = z;
+    this.applyOrbitPosition();
+  }
+
+  resetOrbitAndZoom() {
+    this.userZoom = 1;
+    this.applyZoom();
+    const offset = new THREE.Vector3().subVectors(
+      new THREE.Vector3(-1, 2.8, -2.9),
+      new THREE.Vector3(0, 0, 0)
+    );
+    const s = new THREE.Spherical().setFromVector3(offset);
+    this.orbitRadius = s.radius;
+    this.orbitTheta = s.theta;
+    this.orbitPhi = s.phi;
+    this.orbitTargetX = 0;
+    this.orbitTargetY = 0;
+    this.orbitTargetZ = 0;
+    this.applyOrbitPosition();
+  }
+
+  private applyOrbitPosition() {
+    const spherical = new THREE.Spherical(this.orbitRadius, this.orbitPhi, this.orbitTheta);
+    const pos = new THREE.Vector3().setFromSpherical(spherical);
+    pos.x += this.orbitTargetX;
+    pos.y += this.orbitTargetY;
+    pos.z += this.orbitTargetZ;
+    this.position.copy(pos);
+    this.lookAt(this.orbitTargetX, this.orbitTargetY, this.orbitTargetZ);
+    this.updateProjectionMatrix();
+  }
 }
 
 export class CrossyWorld extends Group {

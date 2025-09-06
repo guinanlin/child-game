@@ -2,7 +2,7 @@ import Characters from '../Characters';
 import Generic from './Generic';
 
 export default class Hero extends Generic {
-  setup = async () => {
+  setup = async (): Promise<void> => {
     const { characters } = this.globalModels;
 
     for (let id of Object.keys(Characters)) {
@@ -17,7 +17,7 @@ export default class Hero extends Generic {
         });
       }
     }
-    return this.models;
+    return;
   };
 
   getNode(key) {

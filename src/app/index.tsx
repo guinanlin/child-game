@@ -128,6 +128,73 @@ class Game extends Component {
     // );
 
     Dimensions.addEventListener("change", this.onScreenResize);
+
+    // Only on web: listen to mouse wheel to zoom the orthographic camera
+    if (typeof window !== "undefined") {
+      this._onWheel = (ev: WheelEvent) => {
+        if (this.state.gameState === State.Game.none && this.engine && this.engine.camera) {
+          this.engine.camera.adjustZoomByDelta(ev.deltaY);
+          ev.preventDefault();
+        }
+      };
+      window.addEventListener("wheel", this._onWheel, { passive: false });
+
+      let isDragging = false;
+      let lastX = 0;
+      let lastY = 0;
+      let button: number | null = null; // 0:left 1:middle 2:right
+      const getViewport = () => {
+        const w = window.innerWidth || 1;
+        const h = window.innerHeight || 1;
+        return { w, h };
+      };
+      this._onMouseDown = (ev: MouseEvent) => {
+        if (this.state.gameState !== State.Game.none) return;
+        isDragging = true;
+        lastX = ev.clientX;
+        lastY = ev.clientY;
+        button = ev.button;
+      };
+      this._onMouseMove = (ev: MouseEvent) => {
+        if (!isDragging || this.state.gameState !== State.Game.none) return;
+        if (!this.engine || !this.engine.camera) return;
+        const dx = ev.clientX - lastX;
+        const dy = ev.clientY - lastY;
+        lastX = ev.clientX;
+        lastY = ev.clientY;
+        if (button === 0) {
+          // Left: orbit rotate
+          const ROTATE_SPEED = 0.005;
+          this.engine.camera.orbitBy(-dx * ROTATE_SPEED, -dy * ROTATE_SPEED);
+        } else if (button === 2) {
+          // Right: pan
+          const { w, h } = getViewport();
+          this.engine.camera.panByPixels(dx, dy, w, h);
+        }
+      };
+      this._onMouseUp = () => {
+        isDragging = false;
+        button = null;
+      };
+      this._onContextMenu = (ev: MouseEvent) => {
+        if (this.state.gameState === State.Game.none) {
+          ev.preventDefault(); // disable context menu on drag
+        }
+      };
+      this._onAuxClick = (ev: MouseEvent) => {
+        if (this.state.gameState !== State.Game.none) return;
+        // Middle button click to reset camera
+        if (ev.button === 1 && this.engine && this.engine.camera) {
+          this.engine.camera.resetOrbitAndZoom();
+          ev.preventDefault();
+        }
+      };
+      window.addEventListener("mousedown", this._onMouseDown);
+      window.addEventListener("mousemove", this._onMouseMove);
+      window.addEventListener("mouseup", this._onMouseUp);
+      window.addEventListener("contextmenu", this._onContextMenu);
+      window.addEventListener("auxclick", this._onAuxClick);
+    }
   }
 
   onScreenResize = ({ window }) => {
@@ -136,6 +203,14 @@ class Game extends Component {
 
   componentWillUnmount() {
     Dimensions.removeEventListener("change", this.onScreenResize);
+    if (typeof window !== "undefined") {
+      if (this._onWheel) window.removeEventListener("wheel", this._onWheel as any);
+      if (this._onMouseDown) window.removeEventListener("mousedown", this._onMouseDown as any);
+      if (this._onMouseMove) window.removeEventListener("mousemove", this._onMouseMove as any);
+      if (this._onMouseUp) window.removeEventListener("mouseup", this._onMouseUp as any);
+      if (this._onContextMenu) window.removeEventListener("contextmenu", this._onContextMenu as any);
+      if (this._onAuxClick) window.removeEventListener("auxclick", this._onAuxClick as any);
+    }
   }
 
   UNSAFE_componentWillMount() {

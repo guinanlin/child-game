@@ -150,10 +150,10 @@ export default {
       model: require('../assets/models/characters/brent/0.obj'),
       texture: require('../assets/models/characters/brent/0.png'),
     },
-    // chicken: {
-    //   model: require('../assets/models/characters/chicken/0.obj'),
-    //   texture: require('../assets/models/characters/chicken/0.png'),
-    // },
+    chicken: {
+      model: require('../assets/models/characters/chicken/0.obj'),
+      texture: require('../assets/models/characters/chicken/0.png'),
+    },
     avocoder: {
       model: require('../assets/models/characters/avocoder/avocoder.obj'),
       texture: require('../assets/models/characters/avocoder/avocoder.png'),
@@ -173,6 +173,10 @@ export default {
     juwan: {
       model: require('../assets/models/characters/juwan/juwan.obj'),
       texture: require('../assets/models/characters/juwan/juwan.png'),
+    },
+    paopao: {
+      model: require('../assets/models/characters/paopao/base.obj'),
+      texture: require('../assets/models/characters/paopao/shaded.png'),
     },
   }
 }

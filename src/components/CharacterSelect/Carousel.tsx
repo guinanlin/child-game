@@ -9,7 +9,11 @@ const width = 150;
 const AnimatedText = Animated.createAnimatedComponent(Text);
 
 const keys = Object.keys(Characters);
-export default class Carousel extends Component {
+type CarouselProps = {
+  onCurrentIndexChange?: (index: number) => void;
+};
+
+export default class Carousel extends Component<CarouselProps> {
   scroll = new Animated.Value(0);
 
   state = {
@@ -96,7 +100,7 @@ export default class Carousel extends Component {
             const { index } = this.viewPager;
             if (this.state.index !== index) {
               this.setState({ index }, () => {
-                // this.props.onIndexChange(index, this.state.index);
+                this.props.onCurrentIndexChange?.(index);
               });
             }
           }}

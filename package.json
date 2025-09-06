@@ -8,15 +8,19 @@
   "scripts": {
     "start": "expo",
     "predeploy:web": "expo export -p web",
-    "deploy:web": "eas deploy"
+    "deploy:web": "eas deploy",
+    "build:web": "expo export -p web",
+    "serve:web": "npx serve -s dist -l 5173"
   },
   "dependencies": {
+    "@babel/runtime": "^7.28.4",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-picker/picker": "2.9.0",
     "@tweenjs/tween.js": "^17.2.0",
     "expo": "^52.0.25",
     "expo-asset": "~11.0.2",
     "expo-av": "~15.0.2",
+    "expo-font": "~12.0.10",
     "expo-gl": "~15.0.3",
     "expo-linking": "~7.0.4",
     "expo-router": "~4.0.16",
@@ -32,10 +36,12 @@
     "three": "0.145.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9",
+    "@babel/core": "^7.28.0",
     "@types/react": "~18.3.12",
     "@types/react-native": "~0.64.12",
     "@types/three": "^0.172.0",
+    "babel-preset-expo": "^12.0.0",
+    "eas-cli": "^16.18.0",
     "typescript": "~5.3.3"
   }
 }

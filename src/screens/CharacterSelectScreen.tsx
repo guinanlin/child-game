@@ -8,13 +8,19 @@ import Carousel from "@/components/CharacterSelect/Carousel";
 import Images from "@/Images";
 
 // import connectCharacter from '../../utils/connectCharacter';
-class CharacterSelect extends Component {
+type CharacterSelectProps = {
+  navigation: { goBack: () => void };
+  setCharacter?: (character: any) => void;
+  style?: any;
+};
+
+class CharacterSelect extends Component<CharacterSelectProps> {
   state = {
     currentIndex: 0,
     characters: Object.keys(Characters).map((val) => Characters[val]),
   };
   dismiss = () => {
-    this.props.navigation.goBack();
+    this.props.navigation?.goBack?.();
   };
 
   pickRandom = () => {
@@ -22,7 +28,7 @@ class CharacterSelect extends Component {
 
     const randomIndex = Math.floor(Math.random() * (characters.length - 1));
     const randomCharacter = characters[randomIndex];
-    this.props.setCharacter(randomCharacter);
+    this.props.setCharacter?.(randomCharacter);
     this.dismiss();
   };
   share = () => {
@@ -62,7 +68,7 @@ class CharacterSelect extends Component {
   select = () => {
     const { characters, currentIndex } = this.state;
 
-    this.props.setCharacter(characters[currentIndex]);
+    this.props.setCharacter?.(characters[currentIndex]);
     this.dismiss();
   };
 
@@ -76,6 +82,7 @@ class CharacterSelect extends Component {
         >
           <Button
             source={Images.button.back}
+            style={{}}
             imageStyle={imageStyle}
             onPress={(_) => {
               this.dismiss();
@@ -98,6 +105,7 @@ class CharacterSelect extends Component {
         >
           <Button
             source={Images.button.random}
+            style={{}}
             imageStyle={imageStyle}
             onPress={(_) => {
               this.pickRandom();
@@ -105,6 +113,7 @@ class CharacterSelect extends Component {
           />
           <Button
             source={Images.button.long_play}
+            style={{}}
             imageStyle={{ width: 90, height: 48 }}
             onPress={(_) => {
               this.select();
@@ -112,6 +121,7 @@ class CharacterSelect extends Component {
           />
           <Button
             source={Images.button.social}
+            style={{}}
             imageStyle={imageStyle}
             onPress={(_) => {
               this.share();
@@ -142,10 +152,6 @@ export default CharacterSelect;
 //   state => ({}),
 //   {},
 // )(connectCharacter(CharacterSelect));
-
-CharacterSelect.defaultProps = {
-  coins: 0,
-};
 
 const styles = StyleSheet.create({
   container: {

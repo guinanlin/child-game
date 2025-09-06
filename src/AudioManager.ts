@@ -1,8 +1,8 @@
 import { Audio } from "expo-av";
 import AudioFiles from "./Audio";
 
-// Web just can't seem to handle audio
-const MUTED = process.env.EXPO_OS === "web";
+// 允许 Web 环境播放音频（原先在 Web 上强制静音）
+const MUTED = false;
 
 class AudioManager {
   sounds = AudioFiles;

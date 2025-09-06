@@ -18,7 +18,7 @@ const TitleButton = ({ text, imageStyle, source, onPress }) => (
       marginHorizontal: 4,
     }}
   >
-    <Button imageStyle={imageStyle} source={source} onPress={onPress} />
+    <Button style={{}} imageStyle={imageStyle} source={source} onPress={onPress} />
     <Text
       style={{
         fontFamily: "retro",
@@ -33,13 +33,19 @@ const TitleButton = ({ text, imageStyle, source, onPress }) => (
   </View>
 );
 
-class Settings extends Component {
+type SettingsProps = {
+  goBack?: () => void;
+  setCharacter?: (character: any) => void;
+  style?: any;
+};
+
+class Settings extends Component<SettingsProps> {
   state = {
     currentIndex: 0,
     characters: Object.keys(Characters).map((val) => Characters[val]),
   };
   dismiss = () => {
-    this.props.goBack();
+    this.props.goBack?.();
   };
 
   pickRandom = () => {
@@ -47,7 +53,7 @@ class Settings extends Component {
 
     const randomIndex = Math.floor(Math.random() * (characters.length - 1));
     const randomCharacter = characters[randomIndex];
-    this.props.setCharacter(randomCharacter);
+    this.props.setCharacter?.(randomCharacter);
     this.dismiss();
   };
   share = () => {
@@ -85,7 +91,7 @@ class Settings extends Component {
   select = () => {
     const { characters, currentIndex } = this.state;
 
-    this.props.setCharacter(characters[currentIndex]);
+    this.props.setCharacter?.(characters[currentIndex]);
     this.dismiss();
   };
 
@@ -150,6 +156,7 @@ class Settings extends Component {
         >
           <Button
             source={Images.button.back}
+            style={{}}
             imageStyle={imageStyle}
             onPress={(_) => {
               this.dismiss();
@@ -199,9 +206,7 @@ export default Settings;
 //   {},
 // )(Settings);
 
-Settings.defaultProps = {
-  coins: 0,
-};
+// Removed defaultProps; handle defaults inline where needed
 
 const styles = StyleSheet.create({
   container: {
