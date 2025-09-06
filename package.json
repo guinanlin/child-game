@@ -10,7 +10,8 @@
     "predeploy:web": "expo export -p web",
     "deploy:web": "eas deploy",
     "build:web": "expo export -p web",
-    "serve:web": "npx serve -s dist -l 5173"
+    "preserve:web": "pnpm run build:web",
+    "serve:web": "npx serve -s dist -l $PORT"
   },
   "dependencies": {
     "@babel/runtime": "^7.28.4",
