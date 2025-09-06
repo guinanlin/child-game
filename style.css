@@ -1,0 +1,176 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  cursor: pointer;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+#page-title {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: 900;
+  font-size: 1.8em;
+  color: #b83b8a;
+  letter-spacing: 2px;
+  text-shadow: 0 3px 0 rgba(255, 255, 255, 0.9), 0 6px 12px rgba(184, 59, 138, 0.25);
+  background: rgba(255, 240, 246, 0.8);
+  padding: 8px 16px;
+  border-radius: 16px;
+  z-index: 4;
+}
+
+#score {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  font-size: 2em;
+  font-weight: 900;
+  color: #b83b8a;
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.7);
+}
+
+#introduction {
+  width: 200px;
+  height: 150px;
+  position: absolute;
+  font-weight: 600;
+  font-size: 0.8em;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+  transition: opacity 2s;
+  color: #7a3ea1;
+  background: rgba(255, 240, 246, 0.8);
+  padding: 10px 12px;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(184, 59, 138, 0.12);
+  top: 20px;
+  left: 20px;
+  z-index: 3;
+}
+
+#restart {
+  width: 120px;
+  height: 120px;
+  position: absolute;
+  border-radius: 50%;
+  color: white;
+  background: linear-gradient(135deg, #ff7bbf 0%, #b83b8a 100%);
+  border: none;
+  font-weight: 700;
+  font-size: 1.2em;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  display: none;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(184, 59, 138, 0.3);
+  top: 250px;
+  left: 20px;
+}
+
+#perfect {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 2s;
+  color: #ff3fa6;
+  font-weight: 800;
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.8);
+  top: 190px;
+  left: 20px;
+}
+
+#youtube,
+#youtube-card {
+  display: none;
+}
+
+@media (min-height: 425px) {
+  /** Youtube logo by https://codepen.io/alvaromontoro */
+  #youtube {
+    z-index: 2;
+    display: block;
+    width: 100px;
+    height: 70px;
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: #ff7bbf;
+    border-radius: 50% / 11%;
+    transform: scale(0.8);
+    transition: transform 0.5s;
+  }
+
+  #youtube:hover,
+  #youtube:focus {
+    transform: scale(0.9);
+  }
+
+  #youtube::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 7.5%;
+    left: -6%;
+    width: 112%;
+    height: 85%;
+    background: #ff7bbf;
+    border-radius: 9% / 50%;
+  }
+
+  #youtube::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 20px;
+    left: 40px;
+    width: 45px;
+    height: 30px;
+    border: 15px solid transparent;
+    box-sizing: border-box;
+    border-left: 30px solid white;
+  }
+
+  #youtube span {
+    font-size: 0;
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  #youtube:hover + #youtube-card {
+    display: block;
+    position: absolute;
+    bottom: 12px;
+    left: 10px;
+    padding: 25px 25px 25px 130px;
+    width: 300px;
+    background-color: white;
+  }
+}
+
+#audio-toggle {
+  position: absolute;
+  top: 85px;
+  right: 30px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #ffd1ea 0%, #ff7bbf 100%);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(184, 59, 138, 0.25);
+}

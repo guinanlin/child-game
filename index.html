@@ -1,0 +1,23 @@
+<!-- 建议：给页面加上基本结构，并引入 CSS/JS -->
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>过桥小勇士</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div id="page-title">麦兜的桥</div>
+      <audio id="bgm" src="bg.mp3" preload="auto" loop></audio>
+      <div id="score"></div>
+      <canvas id="game" width="375" height="375"></canvas>
+      <div id="introduction">按住鼠标伸长木棍，松开搭桥</div>
+      <div id="perfect">双倍得分</div>
+      <button id="restart">再来一次</button>
+    </div>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
