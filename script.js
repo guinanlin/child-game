@@ -237,8 +237,10 @@ window.addEventListener(
       phase = "stretching";
       window.requestAnimationFrame(animate);
     }
-    // Prevent scrolling/zooming while interacting
-    event.preventDefault();
+    // Prevent scrolling/zooming only when interacting with the canvas
+    if (event.target === canvas) {
+      event.preventDefault();
+    }
   },
   { passive: false }
 );
@@ -249,7 +251,9 @@ window.addEventListener(
     if (phase == "stretching") {
       phase = "turning";
     }
-    event.preventDefault();
+    if (event.target === canvas) {
+      event.preventDefault();
+    }
   },
   { passive: false }
 );
@@ -260,7 +264,9 @@ window.addEventListener(
     if (phase == "stretching") {
       phase = "turning";
     }
-    event.preventDefault();
+    if (event.target === canvas) {
+      event.preventDefault();
+    }
   },
   { passive: false }
 );
@@ -425,6 +431,18 @@ restartButton.addEventListener("click", function (event) {
   resetGame();
   restartButton.style.display = "none";
 });
+
+// Enable restart on iOS/Android where global touch handlers may block click
+restartButton.addEventListener(
+  "touchstart",
+  function (event) {
+    event.stopPropagation();
+    event.preventDefault();
+    resetGame();
+    restartButton.style.display = "none";
+  },
+  { passive: false }
+);
 
 function drawPlatforms() {
   platforms.forEach(({ x, w }) => {
