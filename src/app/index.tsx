@@ -18,6 +18,7 @@ import GameOverScreen from "@/screens/GameOverScreen";
 import HomeScreen from "@/screens/HomeScreen";
 import SettingsScreen from "@/screens/SettingsScreen";
 import GameContext from "@/context/GameContext";
+import AudioManager from "@/AudioManager";
 
 const DEBUG_CAMERA_CONTROLS = false;
 
@@ -98,28 +99,28 @@ class Game extends Component {
           this.engine._hero.stopIdle();
           this.onSwipe(swipeDirections.SWIPE_UP);
         }
+        AudioManager.playBackgroundAsync();
 
         break;
       case gameOver:
+        AudioManager.pauseBackgroundAsync();
         break;
       case paused:
         this.engine.pause();
+        AudioManager.pauseBackgroundAsync();
         break;
       case none:
         if (lastState === gameOver) {
           this.transitionToGamePlayingState();
         }
         this.newScore();
+        AudioManager.stopBackgroundAsync();
 
         break;
       default:
         break;
     }
   };
-
-  componentWillUnmount() {
-    cancelAnimationFrame(this.engine.raf);
-  }
 
   async componentDidMount() {
     // AudioManager.sounds.bg_music.setVolumeAsync(0.05);
@@ -202,6 +203,8 @@ class Game extends Component {
   };
 
   componentWillUnmount() {
+    cancelAnimationFrame(this.engine.raf);
+    AudioManager.stopBackgroundAsync();
     Dimensions.removeEventListener("change", this.onScreenResize);
     if (typeof window !== "undefined") {
       if (this._onWheel) window.removeEventListener("wheel", this._onWheel as any);

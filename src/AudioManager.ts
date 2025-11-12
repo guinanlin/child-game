@@ -7,6 +7,9 @@ const MUTED = false;
 class AudioManager {
   sounds = AudioFiles;
 
+  backgroundSound: Audio.Sound | null = null;
+  backgroundVolume = 0.12;
+
   audioFileMoveIndex = 0;
 
   playMoveSound = async () => {
@@ -72,6 +75,44 @@ class AudioManager {
       await sound.setPositionAsync(0);
     }
     return await sound.playAsync();
+  };
+  ensureBackgroundSoundAsync = async () => {
+    if (this.backgroundSound) {
+      return this.backgroundSound;
+    }
+    const { sound } = await Audio.Sound.createAsync(this.sounds.bg_music, {
+      isLooping: true,
+      volume: this.backgroundVolume,
+    });
+    this.backgroundSound = sound;
+    return sound;
+  };
+
+  playBackgroundAsync = async () => {
+    if (MUTED) return;
+
+    const sound = await this.ensureBackgroundSoundAsync();
+    const status = await sound.getStatusAsync();
+    if (!status.isPlaying) {
+      await sound.playAsync();
+    }
+  };
+
+  pauseBackgroundAsync = async () => {
+    if (!this.backgroundSound) return;
+    const status = await this.backgroundSound.getStatusAsync();
+    if (status.isLoaded && status.isPlaying) {
+      await this.backgroundSound.pauseAsync();
+    }
+  };
+
+  stopBackgroundAsync = async () => {
+    if (!this.backgroundSound) return;
+    const status = await this.backgroundSound.getStatusAsync();
+    if (status.isLoaded) {
+      await this.backgroundSound.stopAsync();
+      await this.backgroundSound.setPositionAsync(0);
+    }
   };
   stopAsync = async (name) => {
     if (name in this.sounds) {

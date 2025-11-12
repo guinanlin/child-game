@@ -29,7 +29,7 @@ export default {
       '1': require('../assets/audio/carsquish3.wav'),
     },
   },
-  bg_music: require('../assets/audio/car-engine-loop-deep.wav'),
+  bg_music: require('../assets/audio/shack_bird.mp3'),
 
   button_in: require('../assets/audio/Pop_1.wav'),
   button_out: require('../assets/audio/Pop_2.wav'),
