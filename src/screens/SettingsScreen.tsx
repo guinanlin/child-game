@@ -100,49 +100,49 @@ class Settings extends Component<SettingsProps> {
 
     const buttons = [
       {
-        text: "Language",
+        text: "语言",
         source: Images.button.language,
         imageStyle: imageStyle,
         onPress: (_) => {},
       },
       {
-        text: "Restore\nPurchases",
+        text: "恢复购买",
         source: Images.button.purchase,
         imageStyle: imageStyle,
         onPress: (_) => {},
       },
       {
-        text: "Credits",
+        text: "积分",
         source: Images.button.credits,
         imageStyle: imageStyle,
         onPress: (_) => {},
       },
       {
-        text: "Conserve\nBattery",
+        text: "节省电量",
         source: Images.button.conserve_battery,
         imageStyle: imageStyle,
         onPress: (_) => {},
       },
       {
-        text: "Mute",
+        text: "静音",
         source: Images.button.mute,
         imageStyle: imageStyle,
         onPress: (_) => {},
       },
       {
-        text: "No Shadows",
+        text: "无阴影",
         source: Images.button.shadows,
         imageStyle: imageStyle,
         onPress: (_) => {},
       },
       {
-        text: "Reminders",
+        text: "提醒",
         source: Images.button.alerts,
         imageStyle: imageStyle,
         onPress: (_) => {},
       },
       {
-        text: "Save Your Figurines",
+        text: "保存头像",
         source: Images.button.facebook,
         imageStyle: { width: 120, height: 48 },
         onPress: (_) => {},
